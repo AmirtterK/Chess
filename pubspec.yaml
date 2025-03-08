@@ -1,0 +1,62 @@
+name: chess_game
+description: "A new Flutter project."
+
+publish_to: 'none'
+
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.1
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  go_router: ^14.8.1
+  audioplayers: ^6.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+ 
+  flutter_lints: ^5.0.0
+
+
+flutter:
+
+ 
+  uses-material-design: true
+
+  assets:
+    - assets/themes/alpha/
+    - assets/themes/classic/
+    - assets/themes/dash/
+    - assets/themes/game_room/
+    - assets/themes/glass/
+    - assets/themes/light/
+    - assets/themes/marble/
+    - assets/themes/metal/
+    - assets/themes/neon/
+    - assets/themes/newspaper/
+    - assets/themes/tournament/
+    - assets/themes/wood/
+    - assets/icons/
+    - assets/fonts/
+    - assets/sounds/
+  #   - images/a_dot_ham.jpeg
+
+  fonts:
+  
+    - family: Typography
+      fonts:
+        - asset: assets/fonts/Typography Times Regular.ttf
+          weight: 600
+    - family: queen
+      fonts:
+        - asset: assets/fonts/TheQueen-Regular.ttf
+          weight: 600
+

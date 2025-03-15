@@ -1,4 +1,4 @@
-import 'package:chess_game/components/data.dart';
+import 'package:chess_game/Components/data.dart';
 enum ChessPieceType { king, queen, bishop, rook, knight, pawn }
 
 class ChessPiece {

@@ -1,12 +1,13 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:chess_game/components/DeadPiece.dart';
+import 'package:chess_game/Components/data.dart';
+import 'package:chess_game/Logic/Directions.dart';
 import 'package:chess_game/components/Tile.dart';
+import 'package:chess_game/components/deadPiece.dart';
 import 'package:chess_game/components/move.dart';
 import 'package:chess_game/components/piece.dart';
 import 'package:chess_game/methods.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:chess_game/components/data.dart';
 import 'package:go_router/go_router.dart';
 
 class GameBoard extends StatefulWidget {
@@ -185,16 +186,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
     int direction = selectedPiece.isWhite ? whiteDirection : blackDirection;
     switch (selectedPiece.type) {
       case ChessPieceType.king:
-        var directions = [
-          [-1, 0],
-          [1, 0],
-          [0, -1],
-          [0, 1],
-          [-1, -1],
-          [1, 1],
-          [1, -1],
-          [-1, 1],
-        ];
+        List<List<int>> directions = kingDirections;
         for (var direction in directions) {
           var row = x + direction[0];
           var col = y + direction[1];
@@ -212,16 +204,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
         break;
 
       case ChessPieceType.queen:
-        var directions = [
-          [-1, 0],
-          [1, 0],
-          [0, -1],
-          [0, 1],
-          [-1, -1],
-          [1, 1],
-          [1, -1],
-          [-1, 1],
-        ];
+        List<List<int>> directions = queenDirections;
         for (var direction in directions) {
           int i = 1;
           while (true) {
@@ -242,12 +225,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
         }
         break;
       case ChessPieceType.rook:
-        var directions = [
-          [-1, 0],
-          [1, 0],
-          [0, -1],
-          [0, 1],
-        ];
+        List<List<int>> directions = rookDirections;
         for (var direction in directions) {
           int i = 1;
           while (true) {
@@ -269,12 +247,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
 
         break;
       case ChessPieceType.bishop:
-        var directions = [
-          [-1, -1],
-          [1, 1],
-          [1, -1],
-          [-1, 1],
-        ];
+        List<List<int>> directions = bishopDirections;
         for (var direction in directions) {
           int i = 1;
           while (true) {
@@ -296,16 +269,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
         break;
 
       case ChessPieceType.knight:
-        var directions = [
-          [-2, -1],
-          [2, 1],
-          [-2, 1],
-          [2, -1],
-          [-1, -2],
-          [1, 2],
-          [-1, 2],
-          [1, -2],
-        ];
+        List<List<int>> directions = knightDirections;
         for (var move in directions) {
           var row = x + move[0];
           var col = y + move[1];

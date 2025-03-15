@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:chess_game/components/data.dart';
+import 'package:chess_game/Components/data.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

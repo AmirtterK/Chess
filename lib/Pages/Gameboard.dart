@@ -41,111 +41,115 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 8.0),
-              child: SizedBox(
-                height: 30,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  controller: _scrollController,
-                  itemCount: moves.length,
-                  itemBuilder: (context, index) => Row(
-                    mainAxisSize: MainAxisSize.min,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) => exitGame(),
+      child: SafeArea(
+        child: Scaffold(
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+                child: SizedBox(
+                  height: 30,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    controller: _scrollController,
+                    itemCount: moves.length,
+                    itemBuilder: (context, index) => Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        DeadPiece(
+                            isWhite: moves[index].isWhite,
+                            piece: moves[index].piece),
+                        Text(moves[index].place),
+                        SizedBox(
+                          width: 10,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
+                child: SizedBox(
+                  height: 60,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DeadPiece(
-                          isWhite: moves[index].isWhite,
-                          piece: moves[index].piece),
-                      Text(moves[index].place),
+                      Wrap(
+                        alignment: WrapAlignment.start,
+                        children: whitePiecestaken
+                            .map((piece) =>
+                                DeadPiece(isWhite: true, piece: piece))
+                            .toList(),
+                      ),
                       SizedBox(
-                        width: 10,
-                      )
+                        height: 10,
+                      ),
+                      if (blackScore > whiteScore)
+                        Text("+${blackScore - whiteScore}"),
                     ],
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
-              child: SizedBox(
-                height: 60,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      alignment: WrapAlignment.start,
-                      children: whitePiecestaken
-                          .map(
-                              (piece) => DeadPiece(isWhite: true, piece: piece))
-                          .toList(),
+              GridView.builder(
+                shrinkWrap: true,
+                itemCount: 8 * 8,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 8),
+                itemBuilder: (context, index) {
+                  int x = index ~/ 8;
+                  int y = index % 8;
+                  bool isWhite = (x + y) % 2 == 0;
+                  bool isSelected = (x == x_selected && y == y_selected);
+                  bool isValidMove = false;
+                  for (var move in validMoves) {
+                    if (move[0] == x && move[1] == y) isValidMove = true;
+                  }
+                  return Center(
+                    child: Tile(
+                      isCheck: (isCheck &&
+                          Board![x][y] != null &&
+                          Board![x][y]!.type == ChessPieceType.king),
+                      whiteKingChecked: WhiteKingChecked,
+                      isSelected: isSelected && !isCheck,
+                      isWhite: isWhite,
+                      isvalidMove: isValidMove,
+                      piece: Board![x][y],
+                      onTap: () async => await pieceSelected(x, y),
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    if (blackScore > whiteScore)
-                      Text("+${blackScore - whiteScore}"),
-                  ],
-                ),
+                  );
+                },
               ),
-            ),
-            GridView.builder(
-              shrinkWrap: true,
-              itemCount: 8 * 8,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
-              itemBuilder: (context, index) {
-                int x = index ~/ 8;
-                int y = index % 8;
-                bool isWhite = (x + y) % 2 == 0;
-                bool isSelected = (x == x_selected && y == y_selected);
-                bool isValidMove = false;
-                for (var move in validMoves) {
-                  if (move[0] == x && move[1] == y) isValidMove = true;
-                }
-                return Center(
-                  child: Tile(
-                    isCheck: (isCheck &&
-                        Board![x][y] != null &&
-                        Board![x][y]!.type == ChessPieceType.king),
-                    whiteKingChecked: WhiteKingChecked,
-                    isSelected: isSelected && !isCheck,
-                    isWhite: isWhite,
-                    isvalidMove: isValidMove,
-                    piece: Board![x][y],
-                    onTap: () async => await pieceSelected(x, y),
+              Padding(
+                padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
+                child: SizedBox(
+                  height: 60,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        alignment: WrapAlignment.start,
+                        children: blackPiecestaken
+                            .map((piece) =>
+                                DeadPiece(isWhite: false, piece: piece))
+                            .toList(),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      if (whiteScore > blackScore)
+                        Text("+${whiteScore - blackScore}"),
+                    ],
                   ),
-                );
-              },
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
-              child: SizedBox(
-                height: 60,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      alignment: WrapAlignment.start,
-                      children: blackPiecestaken
-                          .map((piece) =>
-                              DeadPiece(isWhite: false, piece: piece))
-                          .toList(),
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    if (whiteScore > blackScore)
-                      Text("+${whiteScore - blackScore}"),
-                  ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -467,10 +471,11 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
           ),
           actions: [
             CupertinoDialogAction(
+              isDefaultAction: true,
               child: Text(
                 "exit",
                 style: TextStyle(
-                  color: Color.fromARGB(255, 171, 171, 171),
+                  color: const Color.fromARGB(255, 171, 171, 171),
                 ),
               ),
               onPressed: () async => {
@@ -479,11 +484,12 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
               },
             ),
             CupertinoDialogAction(
+              isDefaultAction: true,
               onPressed: () async => await Reset(),
               child: Text(
                 "restart",
                 style: TextStyle(
-                  color: Color.fromARGB(255, 171, 171, 171),
+                  color: const Color.fromARGB(255, 171, 171, 171),
                 ),
               ),
             ),
@@ -526,7 +532,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
               "Promote",
               style: TextStyle(
                 fontSize: 20,
-                color: Color.fromARGB(255, 171, 171, 171),
+                color: const Color.fromARGB(255, 171, 171, 171),
               ),
             ),
             actions: [
@@ -696,5 +702,46 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
     WhiteKingChecked = false;
     moves.clear();
     setState(() {});
+  }
+
+  Future<void> exitGame() async {
+    showCupertinoDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => CupertinoAlertDialog(
+        title: Text(
+          "exit match",
+          style: TextStyle(
+            fontSize: 20,
+            color: const Color.fromARGB(151, 255, 255, 255),
+          ),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: Text(
+              "exit",
+              style: TextStyle(
+                color: const Color.fromARGB(255, 171, 171, 171),
+              ),
+            ),
+            onPressed: () async => {
+              context.pop(),
+              context.replaceNamed("Start"),
+            },
+          ),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () async => context.pop(),
+            child: Text(
+              "Continue",
+              style: TextStyle(
+                color: const Color.fromARGB(255, 171, 171, 171),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -5,7 +5,7 @@ import 'package:chess_game/components/Tile.dart';
 import 'package:chess_game/components/deadPiece.dart';
 import 'package:chess_game/components/move.dart';
 import 'package:chess_game/components/piece.dart';
-import 'package:chess_game/methods.dart';
+import 'package:chess_game/Logic/methods.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

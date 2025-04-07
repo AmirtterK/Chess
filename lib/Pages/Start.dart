@@ -65,9 +65,6 @@ class _StartState extends State<Start> {
                 },
               ),
             ),
-           
-          
-            
             Spacer(),
             Align(
               child: TextButton(

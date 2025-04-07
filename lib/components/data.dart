@@ -10,6 +10,7 @@ int blackbackLine = 0;
 int whiteDirection = -1;
 int blackDirection = 1;
 int startingColor = 0;
+int timeLimit = 0;
 List<int> blackKingPosition = [0, 4];
 List<int> whiteKingPosition = [7, 4];
 final Map<int, Widget> startingColorsOptions = const <int, Widget>{
@@ -29,6 +30,36 @@ final Map<int, Widget> startingColorsOptions = const <int, Widget>{
   ),
   2: Text(
     "random",
+    style: TextStyle(
+      color: Color.fromARGB(255, 171, 171, 171),
+      fontFamily: "queen",
+    ),
+  ),
+};
+final Map<int, Widget> timeLimitOptions = const <int, Widget>{
+  0: Text(
+    "none",
+    style: TextStyle(
+      color: Color.fromARGB(255, 171, 171, 171),
+      fontFamily: "queen",
+    ),
+  ),
+  1: Text(
+    "10m",
+    style: TextStyle(
+      color: Color.fromARGB(255, 171, 171, 171),
+      fontFamily: "queen",
+    ),
+  ),
+  2: Text(
+    "15m",
+    style: TextStyle(
+      color: Color.fromARGB(255, 171, 171, 171),
+      fontFamily: "queen",
+    ),
+  ),
+  3: Text(
+    "30m",
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",

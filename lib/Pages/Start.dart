@@ -65,6 +65,27 @@ class _StartState extends State<Start> {
                 },
               ),
             ),
+            SizedBox(height: 20,),
+            Text(
+              "time",
+              style: TextStyle(
+                fontFamily: "queen",
+                fontSize: 25,
+                color: const Color.fromARGB(255, 108, 108, 108),
+              ),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            CupertinoSlidingSegmentedControl(
+              groupValue: timeLimit,
+              children: timeLimitOptions,
+              onValueChanged: (i) => setState(
+                () {
+                  timeLimit = i!;
+                },
+              ),
+            ),
             Spacer(),
             Align(
               child: TextButton(
@@ -92,7 +113,6 @@ class _StartState extends State<Start> {
             Align(
               child: TextButton(
                 onPressed: () {
-                 
                   context.pushNamed("Settings");
                 },
                 child: Text(

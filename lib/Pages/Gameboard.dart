@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:chess_game/Components/data.dart';
 import 'package:chess_game/Logic/Directions.dart';
@@ -7,6 +9,7 @@ import 'package:chess_game/components/move.dart';
 import 'package:chess_game/components/piece.dart';
 import 'package:chess_game/Logic/methods.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -46,109 +49,129 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
       onPopInvokedWithResult: (didPop, result) => exitGame(),
       child: SafeArea(
         child: Scaffold(
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 8.0),
-                child: SizedBox(
-                  height: 30,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    controller: _scrollController,
-                    itemCount: moves.length,
-                    itemBuilder: (context, index) => Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        DeadPiece(
-                            isWhite: moves[index].isWhite,
-                            piece: moves[index].piece),
-                        Text(moves[index].place),
-                        SizedBox(
-                          width: 10,
-                        )
-                      ],
+          body: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              // crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+                  child: SizedBox(
+                    height: 30,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      controller: _scrollController,
+                      itemCount: moves.length,
+                      itemBuilder: (context, index) => Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DeadPiece(
+                              isWhite: moves[index].isWhite,
+                              piece: moves[index].piece),
+                          Text(moves[index].place),
+                          SizedBox(
+                            width: 10,
+                          )
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
-                child: SizedBox(
-                  height: 60,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        children: whitePiecestaken
-                            .map((piece) =>
-                                DeadPiece(isWhite: true, piece: piece))
-                            .toList(),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(top: 20, bottom: 10, left: 10),
+                    child: SizedBox(
+                      height: 60,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            alignment: WrapAlignment.start,
+                            children: whitePiecestaken
+                                .map((piece) =>
+                                    DeadPiece(isWhite: true, piece: piece))
+                                .toList(),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          if (blackScore > whiteScore)
+                            Text("+${blackScore - whiteScore}"),
+                        ],
                       ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      if (blackScore > whiteScore)
-                        Text("+${blackScore - whiteScore}"),
-                    ],
-                  ),
-                ),
-              ),
-              GridView.builder(
-                shrinkWrap: true,
-                itemCount: 8 * 8,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 8),
-                itemBuilder: (context, index) {
-                  int x = index ~/ 8;
-                  int y = index % 8;
-                  bool isWhite = (x + y) % 2 == 0;
-                  bool isSelected = (x == x_selected && y == y_selected);
-                  bool isValidMove = false;
-                  for (var move in validMoves) {
-                    if (move[0] == x && move[1] == y) isValidMove = true;
-                  }
-                  return Center(
-                    child: Tile(
-                      isCheck: (isCheck &&
-                          Board![x][y] != null &&
-                          Board![x][y]!.type == ChessPieceType.king),
-                      whiteKingChecked: WhiteKingChecked,
-                      isSelected: isSelected && !isCheck,
-                      isWhite: isWhite,
-                      isvalidMove: isValidMove,
-                      piece: Board![x][y],
-                      onTap: () async => await pieceSelected(x, y),
                     ),
-                  );
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20, bottom: 10, left: 10),
-                child: SizedBox(
-                  height: 60,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        alignment: WrapAlignment.start,
-                        children: blackPiecestaken
-                            .map((piece) =>
-                                DeadPiece(isWhite: false, piece: piece))
-                            .toList(),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      if (whiteScore > blackScore)
-                        Text("+${whiteScore - blackScore}"),
-                    ],
                   ),
                 ),
-              ),
-            ],
+                ConstrainedBox(
+                  constraints:
+                      (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
+                          ? BoxConstraints()
+                          : BoxConstraints(
+                              minWidth: 0.0,
+                              maxWidth: 500.0,
+                              minHeight: 0.0,
+                              maxHeight: 737.6,
+                            ),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    itemCount: 8 * 8,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 8),
+                    itemBuilder: (context, index) {
+                      int x = index ~/ 8;
+                      int y = index % 8;
+                      bool isWhite = (x + y) % 2 == 0;
+                      bool isSelected = (x == x_selected && y == y_selected);
+                      bool isValidMove = false;
+                      isValidMove = validMoves
+                          .any((move) => move[0] == x && move[1] == y);
+
+                      return Tile(
+                        isCheck: (isCheck &&
+                            Board![x][y] != null &&
+                            Board![x][y]!.type == ChessPieceType.king),
+                        whiteKingChecked: WhiteKingChecked,
+                        isSelected: isSelected && !isCheck,
+                        isWhite: isWhite,
+                        isvalidMove: isValidMove,
+                        piece: Board![x][y],
+                        onTap: () async => await pieceSelected(x, y),
+                      );
+                    },
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(top: 20, bottom: 10, left: 10),
+                    child: SizedBox(
+                      height: 60,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            alignment: WrapAlignment.start,
+                            children: blackPiecestaken
+                                .map((piece) =>
+                                    DeadPiece(isWhite: false, piece: piece))
+                                .toList(),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          if (whiteScore > blackScore)
+                            Text("+${whiteScore - blackScore}"),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

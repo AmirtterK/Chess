@@ -1,4 +1,4 @@
-import 'package:chess_game/components/piece.dart';
+import 'package:chess_game/Components/piece.dart';
 
 class Moves {
   final String place;

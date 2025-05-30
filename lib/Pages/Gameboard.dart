@@ -1,12 +1,14 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:chess_game/Components/Tile.dart';
 import 'package:chess_game/Components/data.dart';
+import 'package:chess_game/Components/deadPiece.dart';
+import 'package:chess_game/Components/move.dart';
+import 'package:chess_game/Components/piece.dart';
+import 'package:chess_game/Components/progress.dart';
 import 'package:chess_game/Logic/Directions.dart';
-import 'package:chess_game/components/Tile.dart';
-import 'package:chess_game/components/deadPiece.dart';
-import 'package:chess_game/components/move.dart';
-import 'package:chess_game/components/piece.dart';
+
 import 'package:chess_game/Logic/methods.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -34,6 +36,8 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
   bool isCheck = false;
   bool WhiteKingChecked = false;
   List<Moves> moves = [];
+  DateTime _p1Time = DateTime(0, 0, 0, 0, times[timeLimit], 0);
+  DateTime _p2Time = DateTime(0, 0, 0, 0, times[timeLimit], 0);
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -51,8 +55,6 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
         child: Scaffold(
           body: Center(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              // crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0, left: 8.0),
@@ -70,40 +72,21 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
                               piece: moves[index].piece),
                           Text(moves[index].place),
                           SizedBox(
-                            width: 10,
-                          )
+                            width: 3,
+                          ),
                         ],
                       ),
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(top: 20, bottom: 10, left: 10),
-                    child: SizedBox(
-                      height: 60,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Wrap(
-                            alignment: WrapAlignment.start,
-                            children: whitePiecestaken
-                                .map((piece) =>
-                                    DeadPiece(isWhite: true, piece: piece))
-                                .toList(),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          if (blackScore > whiteScore)
-                            Text("+${blackScore - whiteScore}"),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                Progress(
+                    isWhite: whiteDirection == -1 ? false : true,
+                    whiteScore: whiteScore,
+                    blackScore: blackScore,
+                    pTime: _p2Time,
+                    piecestaken: whiteDirection == -1
+                        ? whitePiecestaken
+                        : blackPiecestaken),
                 ConstrainedBox(
                   constraints:
                       (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
@@ -143,33 +126,14 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
                     },
                   ),
                 ),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(top: 20, bottom: 10, left: 10),
-                    child: SizedBox(
-                      height: 60,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Wrap(
-                            alignment: WrapAlignment.start,
-                            children: blackPiecestaken
-                                .map((piece) =>
-                                    DeadPiece(isWhite: false, piece: piece))
-                                .toList(),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          if (whiteScore > blackScore)
-                            Text("+${whiteScore - blackScore}"),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                Progress(
+                    isWhite: whiteDirection == -1 ? true : false,
+                    whiteScore: whiteScore,
+                    blackScore: blackScore,
+                    pTime: _p2Time,
+                    piecestaken: whiteDirection == -1
+                        ? blackPiecestaken
+                        : whitePiecestaken),
               ],
             ),
           ),

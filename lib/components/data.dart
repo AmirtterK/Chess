@@ -1,4 +1,4 @@
-import 'package:chess_game/components/piece.dart';
+import 'package:chess_game/Components/piece.dart';
 import 'package:flutter/material.dart';
 
 String pieceTheme = "neon";
@@ -11,10 +11,11 @@ int whiteDirection = -1;
 int blackDirection = 1;
 int startingColor = 0;
 int timeLimit = 0;
+List<int> times = [0,10,15,30];
 List<int> blackKingPosition = [0, 4];
 List<int> whiteKingPosition = [7, 4];
 final Map<int, Widget> startingColorsOptions = const <int, Widget>{
-  0: Text(
+  0: Text( 
     "white",
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),

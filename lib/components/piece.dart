@@ -1,4 +1,25 @@
+
 import 'package:chess_game/Components/data.dart';
+import 'package:flutter/material.dart';
+
+class Piece extends StatelessWidget {
+  final ChessPiece piece;
+  const Piece({super.key, required this.piece});
+
+  
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.zero,
+      margin: EdgeInsets.zero,
+      width: 20,
+      height: 20,
+      child: Image.asset(imagePath(piece)),
+    );
+  }
+}
+
 enum ChessPieceType { king, queen, bishop, rook, knight, pawn }
 
 class ChessPiece {

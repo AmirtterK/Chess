@@ -4,9 +4,8 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:chess_game/Components/Tile.dart';
 import 'package:chess_game/Components/data.dart';
-import 'package:chess_game/Components/deadPiece.dart';
-import 'package:chess_game/Components/move.dart';
 import 'package:chess_game/Components/piece.dart';
+import 'package:chess_game/Components/move.dart';
 import 'package:chess_game/Components/progress.dart';
 import 'package:chess_game/Logic/Directions.dart';
 
@@ -37,7 +36,6 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
   bool isCheck = false;
   bool WhiteKingChecked = false;
   List<Moves> moves = [];
-  // Duration _p1Time = Duration(minutes: times[timeLimit]);
   Duration _p1Time = Duration(minutes: times[timeLimit]);
   Duration _p2Time = Duration(minutes: times[timeLimit]);
   final ScrollController _scrollController = ScrollController();
@@ -55,7 +53,9 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
   @override
   void dispose() {
     super.dispose();
-    _timer.cancel();
+    if(timeLimit!=0) {
+      _timer.cancel();
+    }
   }
 
   @override
@@ -79,8 +79,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
                       itemBuilder: (context, index) => Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          DeadPiece(
-                              isWhite: moves[index].isWhite,
+                          Piece(
                               piece: moves[index].piece),
                           Text(moves[index].place),
                           SizedBox(

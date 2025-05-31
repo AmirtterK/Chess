@@ -1,8 +1,6 @@
 import 'package:chess_game/Components/data.dart';
-import 'package:chess_game/Components/deadPiece.dart';
 import 'package:chess_game/Components/piece.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 
 class Progress extends StatefulWidget {
   final bool isWhite;
@@ -32,43 +30,43 @@ class _ProgressState extends State<Progress> {
         padding: const EdgeInsets.only(top: 20, bottom: 20, left: 10),
         child: SizedBox(
           height: 70,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Row(
             children: [
-              Wrap(
-                alignment: WrapAlignment.start,
-                children: widget.piecestaken
-                    .map((piece) =>
-                        DeadPiece(isWhite: widget.isWhite, piece: piece))
-                    .toList(),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    children: widget.piecestaken
+                        .map((piece) => Piece(piece: piece))
+                        .toList(),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
                   if (widget.isWhite)
                     SizedBox(
                         height: 20,
-                        child: widget.whiteScore > widget.blackScore
-                            ? Text("+${widget.whiteScore - widget.blackScore}")
-                            : null)
+                        child: Text(widget.whiteScore > widget.blackScore
+                            ? "+${widget.whiteScore - widget.blackScore}"
+                            : ""))
                   else
                     SizedBox(
                         height: 20,
-                        child: widget.blackScore > widget.whiteScore
-                            ? Text("+${widget.blackScore - widget.whiteScore}")
-                            : null),
-                  if (timeLimit != 0) ...{
-                    Spacer(),
-                    Text("${widget.pTime.inMinutes.remainder(60).toString().padLeft(2, "0")}:${(widget.pTime.inSeconds.remainder(60)).toString().padLeft(2, "0")}"),
-                    SizedBox(
-                      width: 20,
-                    ),
-                  }
+                        child: Text(widget.blackScore > widget.whiteScore
+                            ? "+${widget.blackScore - widget.whiteScore}"
+                            : "")),
                 ],
               ),
+              if (timeLimit != 0) ...{
+                Spacer(),
+                Text(
+                    "${widget.pTime.inMinutes.remainder(60).toString().padLeft(2, "0")}:${(widget.pTime.inSeconds.remainder(60)).toString().padLeft(2, "0")}"),
+                SizedBox(
+                  width: 20,
+                ),
+              },
             ],
           ),
         ),

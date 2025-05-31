@@ -8,7 +8,7 @@ class Progress extends StatefulWidget {
   final bool isWhite;
   final int whiteScore;
   final int blackScore;
-  final DateTime pTime;
+  final Duration pTime;
   final List<ChessPiece> piecestaken;
   const Progress({
     super.key,
@@ -62,7 +62,7 @@ class _ProgressState extends State<Progress> {
                             : null),
                   if (timeLimit != 0) ...{
                     Spacer(),
-                    Text(DateFormat('mm:ss').format(widget.pTime)),
+                    Text("${widget.pTime.inMinutes.remainder(60).toString().padLeft(2, "0")}:${(widget.pTime.inSeconds.remainder(60)).toString().padLeft(2, "0")}"),
                     SizedBox(
                       width: 20,
                     ),

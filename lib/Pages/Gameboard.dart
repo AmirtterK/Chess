@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -36,14 +37,25 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
   bool isCheck = false;
   bool WhiteKingChecked = false;
   List<Moves> moves = [];
-  DateTime _p1Time = DateTime(0, 0, 0, 0, times[timeLimit], 0);
-  DateTime _p2Time = DateTime(0, 0, 0, 0, times[timeLimit], 0);
+  // Duration _p1Time = Duration(minutes: times[timeLimit]);
+  Duration _p1Time = Duration(minutes: times[timeLimit]);
+  Duration _p2Time = Duration(minutes: times[timeLimit]);
   final ScrollController _scrollController = ScrollController();
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
     _initializeBoard();
+    if (timeLimit != 0) {
+      clock();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
   }
 
   @override
@@ -83,7 +95,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
                     isWhite: whiteDirection == -1 ? false : true,
                     whiteScore: whiteScore,
                     blackScore: blackScore,
-                    pTime: _p2Time,
+                    pTime: whiteDirection == -1 ? _p2Time : _p1Time,
                     piecestaken: whiteDirection == -1
                         ? whitePiecestaken
                         : blackPiecestaken),
@@ -130,7 +142,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
                     isWhite: whiteDirection == -1 ? true : false,
                     whiteScore: whiteScore,
                     blackScore: blackScore,
-                    pTime: _p2Time,
+                    pTime: whiteDirection == -1 ? _p1Time : _p2Time,
                     piecestaken: whiteDirection == -1
                         ? blackPiecestaken
                         : whitePiecestaken),
@@ -140,6 +152,63 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
         ),
       ),
     );
+  }
+
+  Future<void> clock() async {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      setState(
+        () {
+          if (_p1Time.inSeconds == 0 || _p2Time.inSeconds == 0) {
+            _timer.cancel();
+            showCupertinoDialog(
+              context: context,
+              builder: (context) => CupertinoAlertDialog(
+                title: Text(
+                  "Match Over ",
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: const Color.fromARGB(151, 255, 255, 255),
+                  ),
+                ),
+                actions: [
+                  CupertinoDialogAction(
+                    isDefaultAction: true,
+                    child: Text(
+                      "exit",
+                      style: TextStyle(
+                        color: const Color.fromARGB(255, 171, 171, 171),
+                      ),
+                    ),
+                    onPressed: () async => {
+                      context.pop(),
+                      context.replaceNamed("Start"),
+                    },
+                  ),
+                  CupertinoDialogAction(
+                    isDefaultAction: true,
+                    onPressed: () async => await Reset(),
+                    child: Text(
+                      "restart",
+                      style: TextStyle(
+                        color: const Color.fromARGB(255, 171, 171, 171),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+            return;
+          }
+
+          if (isWhiteTurn) {
+            _p1Time -= Duration(seconds: 1);
+          } else {
+            _p2Time -= Duration(seconds: 1);
+          }
+        },
+      );
+    });
   }
 
   Future<void> pieceSelected(int x, int y) async {
@@ -688,6 +757,13 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
     isCheck = false;
     WhiteKingChecked = false;
     moves.clear();
+    _p1Time = Duration(minutes: times[timeLimit]);
+    _p2Time = Duration(minutes: times[timeLimit]);
+    if (timeLimit != 0) {
+          _timer.cancel();
+
+      clock();
+    }
     setState(() {});
   }
 

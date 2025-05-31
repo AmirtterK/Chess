@@ -16,8 +16,8 @@ List<List<int>> bishopDirections = [
 ];
 List<List<int>> rookDirections = [
   [-1, 0],
-  [1, 0],
-  [0, -1],
+  [1, 0], 
+  [0, -1], 
   [0, 1],
 ];
 List<List<int>> queenDirections = [

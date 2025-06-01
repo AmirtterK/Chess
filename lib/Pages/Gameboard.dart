@@ -266,6 +266,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
             selectedPiece.movesNum == 0 &&
             Board![x][y + 1] == null &&
             Board![x][y + 2] == null &&
+            Board![x][y + 3] != null &&
             Board![x][y + 3]!.type == ChessPieceType.rook &&
             Board![x][y + 3]!.movesNum == 0) {
           candidateMoves.add([x, y + 2]);
@@ -275,6 +276,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
             Board![x][y - 1] == null &&
             Board![x][y - 2] == null &&
             Board![x][y - 3] == null &&
+            Board![x][y - 4] != null &&
             Board![x][y - 4]!.type == ChessPieceType.rook &&
             Board![x][y - 4]!.movesNum == 0) {
           candidateMoves.add([x, y - 2]);
@@ -418,12 +420,12 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
       for (var move in primaryMoves) {
         int new_x = move[0];
         int new_y = move[1];
-        if (selectedPiece!.type == ChessPieceType.pawn &&
+        if (piece!.type == ChessPieceType.pawn &&
             Board![new_x][new_y] == null &&
             (x != new_x && y != new_y)) {
           EnPassent = true;
         }
-        if (piece!.type == ChessPieceType.king &&
+        if (piece.type == ChessPieceType.king &&
             (new_y == y + 2 || new_y == y - 2)) {
           Casteling = true;
         }
@@ -479,7 +481,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
     Board![x][y] = piece;
     Board![new_x][new_y] = originaldestinationPiece;
     if (EnPassent) {
-      int direction = selectedPiece!.isWhite ? whiteDirection : blackDirection;
+      int direction = piece.isWhite ? whiteDirection : blackDirection;
       Board![new_x - direction][new_y] = SpecialMovePiece;
     }
     if (Casteling) {
@@ -558,7 +560,6 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
         blackPiecestaken.add(Board![x][y]!);
         whiteScore += piecePoint(Board![x][y]!);
       }
-
       kill = true;
       AudioPlayer().play(AssetSource('sounds/capture.mp3')).then((_) {
         AudioPlayer().release();
@@ -591,6 +592,19 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
         whiteKingPosition = [x, y];
       } else {
         blackKingPosition = [x, y];
+      }
+      if (y == y_selected + 2) {
+        Board![x][y - 1] = Board![x][y + 1];
+        Board![x][y - 1]!.movesNum++;
+        Board![x][y + 1] = null;
+        moves.add(Moves(Board![x][y - 1]!.isWhite,
+            place: PieceMoved(7 - x + 1, y ), piece: Board![x][y - 1]!));
+      } else if (y == y_selected - 2) {
+        Board![x][y + 1] = Board![x][y - 2];
+        Board![x][y + 1]!.movesNum++;
+        Board![x][y - 2] = null;
+        moves.add(Moves(Board![x][y + 1]!.isWhite,
+            place: PieceMoved(7 - x + 1, y + 2), piece: Board![x][y + 1]!));
       }
     }
     if (isKingCheck(!isWhiteTurn)) {

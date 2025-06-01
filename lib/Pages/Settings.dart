@@ -21,7 +21,7 @@ class _SettingsState extends State<Settings> {
         child: Column(
           children: [
             SizedBox(
-              height: 80,
+              height: 40,
             ),
             Padding(
               padding: const EdgeInsets.all(10),
@@ -30,7 +30,7 @@ class _SettingsState extends State<Settings> {
                 style: TextStyle(
                   fontFamily: "queen",
                   fontSize: 25,
-                      color: Color.fromARGB(255, 194, 194, 194),
+                  color: Color.fromARGB(255, 194, 194, 194),
                 ),
               ),
             ),
@@ -85,9 +85,9 @@ class _SettingsState extends State<Settings> {
                 ),
               ),
             ),
-            SizedBox(height: 40,),
+            SizedBox(height: 60),
             Padding(
-              padding: const EdgeInsets.only(top: 30),
+              padding: const EdgeInsets.only(top: 30, left: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -101,7 +101,8 @@ class _SettingsState extends State<Settings> {
                   ),
                   Spacer(),
                   CupertinoSwitch(
-                    activeTrackColor:  Color.fromARGB(255, 220, 63, 223).withAlpha(200),
+                    activeTrackColor:
+                        Color.fromARGB(255, 220, 63, 223).withAlpha(200),
                     value: showHints,
                     onChanged: (value) => setState(() {
                       showHints = !showHints;
@@ -111,7 +112,7 @@ class _SettingsState extends State<Settings> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 30),
+              padding: const EdgeInsets.only(top: 30, left: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -125,7 +126,8 @@ class _SettingsState extends State<Settings> {
                   ),
                   Spacer(),
                   CupertinoSwitch(
-                    activeTrackColor:  Color.fromARGB(255, 220, 63, 223).withAlpha(200),
+                    activeTrackColor:
+                        Color.fromARGB(255, 220, 63, 223).withAlpha(200),
                     value: showMoveHistory,
                     onChanged: (value) => setState(() {
                       showMoveHistory = !showMoveHistory;

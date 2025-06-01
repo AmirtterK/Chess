@@ -53,7 +53,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
   @override
   void dispose() {
     super.dispose();
-    if(timeLimit!=0) {
+    if (timeLimit != 0) {
       _timer.cancel();
     }
   }
@@ -79,8 +79,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
                       itemBuilder: (context, index) => Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Piece(
-                              piece: moves[index].piece),
+                          Piece(piece: moves[index].piece),
                           Text(moves[index].place),
                           SizedBox(
                             width: 3,
@@ -366,6 +365,27 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
             (Board![x + direction][y + 1]!.isWhite != selectedPiece.isWhite)) {
           candidateMoves.add([x + direction, y + 1]);
         }
+        if (isOnBoard(x + direction, y + 1) &&
+            selectedPiece.type == ChessPieceType.pawn &&
+            Board![x][y + 1]?.type == ChessPieceType.pawn &&
+            selectedPiece.isWhite != Board![x][y + 1]?.isWhite &&
+            moves.lastOrNull?.piece.type == ChessPieceType.pawn &&
+            moves.last.col() == (y + 1) &&
+            Board![x][y + 1]!.movesNum == 1 &&
+            (x == 3 || x == 4)) {
+          candidateMoves.add([x + direction, y + 1]);
+          print('-------------->>en passion');
+        }
+        if (isOnBoard(x + direction, y - 1) &&
+            selectedPiece.type == ChessPieceType.pawn &&
+            Board![x][y - 1]?.type == ChessPieceType.pawn &&
+            selectedPiece.isWhite != Board![x][y - 1]?.isWhite &&
+            moves.lastOrNull?.piece.type == ChessPieceType.pawn &&
+            moves.last.col() == (y - 1) &&
+            Board![x][y - 1]!.movesNum == 1 &&
+            (x == 3 || x == 4)) {
+          candidateMoves.add([x + direction, y - 1]);
+        }
         break;
     }
     return candidateMoves;
@@ -471,6 +491,21 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
         blackPiecestaken.add(Board![x][y]!);
         whiteScore += piecePoint(Board![x][y]!);
       }
+
+      kill = true;
+      AudioPlayer().play(AssetSource('sounds/capture.mp3')).then((_) {
+        AudioPlayer().release();
+      });
+    } else if (selectedPiece?.type == ChessPieceType.pawn && y_selected != y) {
+      int direction = selectedPiece!.isWhite ? whiteDirection : blackDirection;
+      if (Board![x - direction][y]!.isWhite) {
+        whitePiecestaken.add(Board![x - direction][y]!);
+        blackScore += piecePoint(Board![x - direction][y]!);
+      } else {
+        blackPiecestaken.add(Board![x - direction][y]!);
+        whiteScore += piecePoint(Board![x - direction][y]!);
+      }
+      Board![x - direction][y] = null;
       kill = true;
       AudioPlayer().play(AssetSource('sounds/capture.mp3')).then((_) {
         AudioPlayer().release();
@@ -479,6 +514,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
     Board![x][y] = selectedPiece;
     moves.add(Moves(selectedPiece!.isWhite,
         place: PieceMoved(7 - x + 1, y + 1), piece: selectedPiece!));
+    selectedPiece!.movesNum++;
     Board![x_selected][y_selected] = null;
     if (selectedPiece!.type == ChessPieceType.pawn && (x == 0 || x == 7)) {
       promotePawn(x, y, selectedPiece!.isWhite);
@@ -759,7 +795,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
     _p1Time = Duration(minutes: times[timeLimit]);
     _p2Time = Duration(minutes: times[timeLimit]);
     if (timeLimit != 0) {
-          _timer.cancel();
+      _timer.cancel();
 
       clock();
     }

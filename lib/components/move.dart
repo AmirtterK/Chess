@@ -4,7 +4,41 @@ class Moves {
   final String place;
   final ChessPiece piece;
   final bool isWhite;
-  Moves(this.isWhite, {required this.place, required this.piece});
+  Moves(
+    this.isWhite, {
+    required this.place,
+    required this.piece,
+  });
+  int col(){
+    String col=place[0];
+     switch (col) {
+    case 'a':
+      return 0;
+
+    case 'b':
+      return 1;
+    case 'c':
+      return 2;
+
+    case 'd':
+      return 3;
+
+    case 'e':
+      return 4;
+
+    case 'f':
+      return 5;
+
+    case 'g':
+      return 6;
+
+    case 'h':
+      return 7;
+
+    default:
+      return 0;
+  }
+  }
 }
 
 String PieceMoved(int x, int y) {

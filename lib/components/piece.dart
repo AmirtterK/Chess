@@ -25,7 +25,7 @@ enum ChessPieceType { king, queen, bishop, rook, knight, pawn }
 class ChessPiece {
   final ChessPieceType type;
   final bool isWhite;
-
+  int movesNum=0;
   ChessPiece({required this.type, required this.isWhite});
 }
 

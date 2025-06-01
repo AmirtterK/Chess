@@ -29,7 +29,7 @@ class _ProgressState extends State<Progress> {
       child: Padding(
         padding: const EdgeInsets.only(top: 20, bottom: 20, left: 10),
         child: SizedBox(
-          height: 70,
+          height: 55,
           child: Row(
             children: [
               Column(

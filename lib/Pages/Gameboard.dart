@@ -40,7 +40,8 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
   Duration _p2Time = Duration(minutes: times[timeLimit]);
   final ScrollController _scrollController = ScrollController();
   late Timer _timer;
-
+  bool EnPassent = false;
+  bool Casteling = false;
   @override
   void initState() {
     super.initState();
@@ -68,27 +69,29 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
           body: Center(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, left: 8.0),
-                  child: SizedBox(
-                    height: 30,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      controller: _scrollController,
-                      itemCount: moves.length,
-                      itemBuilder: (context, index) => Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Piece(piece: moves[index].piece),
-                          Text(moves[index].place),
-                          SizedBox(
-                            width: 3,
-                          ),
-                        ],
+                if (showMoveHistory) ...{
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, left: 8.0),
+                    child: SizedBox(
+                      height: 30,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        controller: _scrollController,
+                        itemCount: moves.length,
+                        itemBuilder: (context, index) => Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Piece(piece: moves[index].piece),
+                            Text(moves[index].place),
+                            SizedBox(
+                              width: 3,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
+                },
                 Progress(
                     isWhite: whiteDirection == -1 ? false : true,
                     whiteScore: whiteScore,
@@ -259,6 +262,23 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
           }
           candidateMoves.add([row, col]);
         }
+        if (selectedPiece.type == ChessPieceType.king &&
+            selectedPiece.movesNum == 0 &&
+            Board![x][y + 1] == null &&
+            Board![x][y + 2] == null &&
+            Board![x][y + 3]!.type == ChessPieceType.rook &&
+            Board![x][y + 3]!.movesNum == 0) {
+          candidateMoves.add([x, y + 2]);
+        }
+        if (selectedPiece.type == ChessPieceType.king &&
+            selectedPiece.movesNum == 0 &&
+            Board![x][y - 1] == null &&
+            Board![x][y - 2] == null &&
+            Board![x][y - 3] == null &&
+            Board![x][y - 4]!.type == ChessPieceType.rook &&
+            Board![x][y - 4]!.movesNum == 0) {
+          candidateMoves.add([x, y - 2]);
+        }
         break;
 
       case ChessPieceType.queen:
@@ -374,7 +394,6 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
             Board![x][y + 1]!.movesNum == 1 &&
             (x == 3 || x == 4)) {
           candidateMoves.add([x + direction, y + 1]);
-          print('-------------->>en passion');
         }
         if (isOnBoard(x + direction, y - 1) &&
             selectedPiece.type == ChessPieceType.pawn &&
@@ -399,9 +418,20 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
       for (var move in primaryMoves) {
         int new_x = move[0];
         int new_y = move[1];
-        if (isMoveSafe(x, y, new_x, new_y, piece)) {
+        if (selectedPiece!.type == ChessPieceType.pawn &&
+            Board![new_x][new_y] == null &&
+            (x != new_x && y != new_y)) {
+          EnPassent = true;
+        }
+        if (piece!.type == ChessPieceType.king &&
+            (new_y == y + 2 || new_y == y - 2)) {
+          Casteling = true;
+        }
+        if (isMoveSafe(x, y, new_x, new_y, piece, validMoves)) {
           validMoves.add(move);
         }
+        Casteling = false;
+        EnPassent = false;
       }
     } else {
       return primaryMoves;
@@ -409,10 +439,26 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
     return validMoves;
   }
 
-  bool isMoveSafe(int x, int y, int new_x, int new_y, ChessPiece? piece) {
+  bool isMoveSafe(int x, int y, int new_x, int new_y, ChessPiece? piece,
+      List<List<int>> onProcessMoves) {
     ChessPiece? originaldestinationPiece = Board![new_x][new_y];
+    ChessPiece? SpecialMovePiece;
     List<int>? originalKingPosition;
     if (piece!.type == ChessPieceType.king) {
+      if (Casteling) {
+        if (new_y == y + 2 && onProcessMoves.any((move) => move[1] == y + 1)) {
+          SpecialMovePiece = Board![x][y + 3];
+          Board![x][y + 3] = null;
+          Board![x][y + 1] = SpecialMovePiece;
+        } else if (new_y == y - 2 &&
+            onProcessMoves.any((move) => move[1] == y - 1)) {
+          SpecialMovePiece = Board![x][y - 4];
+          Board![x][y - 4] = null;
+          Board![x][y - 1] = SpecialMovePiece;
+        } else {
+          return false;
+        }
+      }
       originalKingPosition =
           piece.isWhite ? whiteKingPosition : blackKingPosition;
       if (piece.isWhite) {
@@ -421,11 +467,32 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
         blackKingPosition = [new_x, new_y];
       }
     }
+    if (EnPassent) {
+      int direction = selectedPiece!.isWhite ? whiteDirection : blackDirection;
+      SpecialMovePiece = Board![new_x - direction][new_y];
+      Board![new_x - direction][new_y] = null;
+    }
+
     Board![new_x][new_y] = piece;
     Board![x][y] = null;
     bool isCheck = isKingCheck(piece.isWhite);
     Board![x][y] = piece;
     Board![new_x][new_y] = originaldestinationPiece;
+    if (EnPassent) {
+      int direction = selectedPiece!.isWhite ? whiteDirection : blackDirection;
+      Board![new_x - direction][new_y] = SpecialMovePiece;
+    }
+    if (Casteling) {
+      if (new_y == y + 2) {
+        Board![x][y + 3] = SpecialMovePiece;
+        Board![x][y + 1] = null;
+        SpecialMovePiece = null;
+      } else if (new_y == y - 2) {
+        Board![x][y - 4] = SpecialMovePiece;
+        Board![x][y - 1] = null;
+        SpecialMovePiece = null;
+      }
+    }
     if (piece.type == ChessPieceType.king) {
       if (piece.isWhite) {
         whiteKingPosition = originalKingPosition!;

@@ -1,3 +1,4 @@
+import 'package:chess_game/Components/data.dart';
 import 'package:chess_game/Components/piece.dart';
 import 'package:flutter/material.dart';
 
@@ -38,14 +39,14 @@ class Tile extends StatelessWidget {
       content = Stack(
         children: [
           if (piece != null) Image.asset(imagePath(piece!)),
-          if (piece != null)
+          if (piece != null && showHints)
             Transform.scale(
                 scale: 0.95,
                 child: Image.asset(
                   "assets/icons/capture_circle.png",
                   color: const Color.fromARGB(200, 94, 94, 94),
                 )),
-          if (piece == null)
+          if (piece == null && showHints)
             Transform.scale(
                 scale: 0.4,
                 child: ClipOval(

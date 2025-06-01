@@ -14,12 +14,15 @@ int timeLimit = 0;
 List<int> times = [0,10,15,30];
 List<int> blackKingPosition = [0, 4];
 List<int> whiteKingPosition = [7, 4];
+bool showHints=true;
+bool showMoveHistory=true;
 final Map<int, Widget> startingColorsOptions = const <int, Widget>{
   0: Text( 
     "white",
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   1: Text(
@@ -27,6 +30,7 @@ final Map<int, Widget> startingColorsOptions = const <int, Widget>{
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   2: Text(
@@ -34,6 +38,7 @@ final Map<int, Widget> startingColorsOptions = const <int, Widget>{
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
 };
@@ -43,6 +48,7 @@ final Map<int, Widget> timeLimitOptions = const <int, Widget>{
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   1: Text(
@@ -50,6 +56,7 @@ final Map<int, Widget> timeLimitOptions = const <int, Widget>{
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   2: Text(
@@ -57,6 +64,7 @@ final Map<int, Widget> timeLimitOptions = const <int, Widget>{
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   3: Text(
@@ -64,6 +72,7 @@ final Map<int, Widget> timeLimitOptions = const <int, Widget>{
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
 };
@@ -73,6 +82,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -80,6 +90,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -87,6 +98,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -94,6 +106,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -101,6 +114,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -108,6 +122,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -115,6 +130,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -122,6 +138,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -129,6 +146,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -136,6 +154,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -143,6 +162,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
   Text(
@@ -150,6 +170,7 @@ final List<Widget> themesList = [
     style: TextStyle(
       color: Color.fromARGB(255, 171, 171, 171),
       fontFamily: "queen",
+      fontSize: 17
     ),
   ),
 ];

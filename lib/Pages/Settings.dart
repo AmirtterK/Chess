@@ -1,4 +1,3 @@
-
 import 'package:chess_game/Components/data.dart';
 import 'package:chess_game/Components/piece.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,7 +13,7 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   @override
-  Widget build(BuildContext context) {  
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
         padding:
@@ -22,7 +21,7 @@ class _SettingsState extends State<Settings> {
         child: Column(
           children: [
             SizedBox(
-              height: 200,
+              height: 80,
             ),
             Padding(
               padding: const EdgeInsets.all(10),
@@ -31,7 +30,7 @@ class _SettingsState extends State<Settings> {
                 style: TextStyle(
                   fontFamily: "queen",
                   fontSize: 25,
-                  color: const Color.fromARGB(255, 108, 108, 108),
+                      color: Color.fromARGB(255, 194, 194, 194),
                 ),
               ),
             ),
@@ -60,6 +59,7 @@ class _SettingsState extends State<Settings> {
                                     style: TextStyle(
                                       color: Color.fromARGB(255, 171, 171, 171),
                                       fontFamily: "queen",
+                                      fontSize: 21,
                                     ),
                                   ),
                                 ))
@@ -83,6 +83,55 @@ class _SettingsState extends State<Settings> {
                     )
                   ],
                 ),
+              ),
+            ),
+            SizedBox(height: 40,),
+            Padding(
+              padding: const EdgeInsets.only(top: 40, left: 30, right: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Show Hints',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 194, 194, 194),
+                      fontFamily: "queen",
+                      fontSize: 20,
+                    ),
+                  ),
+                  Spacer(),
+                  CupertinoSwitch(
+                    activeTrackColor:  Color.fromARGB(255, 220, 63, 223).withAlpha(200),
+                    value: showHints,
+                    onChanged: (value) => setState(() {
+                      showHints = !showHints;
+                    }),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 40, left: 30, right: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Show Move History',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 194, 194, 194),
+                      fontFamily: "queen",
+                      fontSize: 20,
+                    ),
+                  ),
+                  Spacer(),
+                  CupertinoSwitch(
+                    activeTrackColor:  Color.fromARGB(255, 220, 63, 223).withAlpha(200),
+                    value: showMoveHistory,
+                    onChanged: (value) => setState(() {
+                      showMoveHistory = !showMoveHistory;
+                    }),
+                  ),
+                ],
               ),
             ),
             Spacer(),

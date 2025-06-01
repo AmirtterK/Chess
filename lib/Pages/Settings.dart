@@ -87,7 +87,7 @@ class _SettingsState extends State<Settings> {
             ),
             SizedBox(height: 40,),
             Padding(
-              padding: const EdgeInsets.only(top: 40, left: 30, right: 30),
+              padding: const EdgeInsets.only(top: 30),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -111,7 +111,7 @@ class _SettingsState extends State<Settings> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 40, left: 30, right: 30),
+              padding: const EdgeInsets.only(top: 30),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

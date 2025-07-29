@@ -17,7 +17,10 @@ class _StartState extends State<Start> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.only(top: 70,bottom: 40),
+        padding: EdgeInsets.only(
+          top: 70,
+          bottom: 40 + MediaQuery.of(context).padding.bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -65,7 +68,9 @@ class _StartState extends State<Start> {
                 },
               ),
             ),
-            SizedBox(height: 20,),
+            SizedBox(
+              height: 20,
+            ),
             Text(
               "time",
               style: TextStyle(
@@ -125,8 +130,6 @@ class _StartState extends State<Start> {
                 ),
               ),
             ),
-
-
           ],
         ),
       ),

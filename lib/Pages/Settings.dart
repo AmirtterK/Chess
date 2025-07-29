@@ -16,8 +16,12 @@ class _SettingsState extends State<Settings> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding:
-            const EdgeInsets.only(top: 30, right: 30, left: 30, bottom: 40),
+        padding: EdgeInsets.only(
+          top: 30,
+          right: 30,
+          left: 30,
+          bottom: 40 + MediaQuery.of(context).padding.bottom,
+        ),
         child: Column(
           children: [
             SizedBox(

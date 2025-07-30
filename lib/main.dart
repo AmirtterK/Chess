@@ -6,6 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'Pages/Gameboard.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [SystemUiOverlay.top],
+  );
   runApp(const MyApp());
 }
 
@@ -13,7 +19,6 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MaterialApp.router(
       routerConfig: _router,
       debugShowCheckedModeBanner: false,

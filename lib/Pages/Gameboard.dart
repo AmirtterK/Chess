@@ -64,9 +64,10 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) => exitGame(),
-      child: SafeArea(
-        child: Scaffold(
-          body: Center(
+      child: Scaffold(
+        body: Padding(
+          padding:  EdgeInsets.only(top:  MediaQuery.of(context).padding.top),
+          child: Center(
             child: Column(
               children: [
                 if (showMoveHistory) ...{
@@ -124,7 +125,7 @@ class _GameBoardState extends State<GameBoard> with WidgetsBindingObserver {
                       bool isValidMove = false;
                       isValidMove = validMoves
                           .any((move) => move[0] == x && move[1] == y);
-
+                
                       return Tile(
                         isCheck: (isCheck &&
                             Board![x][y] != null &&

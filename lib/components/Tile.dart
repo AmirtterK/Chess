@@ -1,69 +1,89 @@
-import 'package:chess_game/Components/data.dart';
-import 'package:chess_game/Components/piece.dart';
 import 'package:flutter/material.dart';
 
+import 'package:chess_ritter/components/piece.dart';
+
 class Tile extends StatelessWidget {
-  final bool isCheck;
-  final bool isWhite;
+  final bool isDark;
   final ChessPiece? piece;
   final bool isSelected;
-  final bool isvalidMove;
+  final bool isValidMove;
+  final bool isCheck;
+  final bool showHints;
+  final String pieceTheme;
+  final bool rotatePieces;
   final void Function()? onTap;
-  final bool whiteKingChecked;
+
   const Tile({
     super.key,
-    required this.isWhite,
+    required this.isDark,
     required this.piece,
     required this.isSelected,
-    this.onTap,
-    required this.isvalidMove,
+    required this.isValidMove,
     required this.isCheck,
-    required this.whiteKingChecked,
+    required this.showHints,
+    required this.pieceTheme,
+    required this.rotatePieces,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    
-    Widget? content = piece != null ? Image.asset(imagePath(piece!)) : null;
-    Color tileColor;
-    if (isCheck) {
-      tileColor = isWhite ? Colors.white70 : Colors.grey.shade600;
-      if(whiteKingChecked == piece!.isWhite){
-
-      tileColor = Color.alphaBlend(
-          const Color.fromARGB(255, 220, 63, 223).withAlpha(200), tileColor);
-      }
-    } else if (isSelected) {
-      tileColor = isWhite ? Colors.white30 : Colors.grey.shade600;
-    } else if (isvalidMove) {
+    final background = isDark ? const Color(0xFF5D5A60) : const Color(0xFFE9E6EA);
+    final selectedColor = isSelected
+        ? Color.alphaBlend(const Color(0x80DC3FDF), background)
+        : background;
+    final checkColor = isCheck
+        ? Color.alphaBlend(const Color(0x88E63946), selectedColor)
+        : selectedColor;
+    Widget? content;
+    if (piece != null) {
+      content = Center(
+        child: Piece(
+          piece: piece!,
+          theme: pieceTheme,
+          rotated: rotatePieces,
+        ),
+      );
+    }
+    if (isValidMove && showHints) {
       content = Stack(
+        alignment: Alignment.center,
         children: [
-          if (piece != null) Image.asset(imagePath(piece!)),
-          if (piece != null && showHints)
-            Transform.scale(
-                scale: 0.95,
-                child: Image.asset(
-                  "assets/icons/capture_circle.png",
-                  color: const Color.fromARGB(200, 94, 94, 94),
-                )),
-          if (piece == null && showHints)
-            Transform.scale(
-                scale: 0.4,
-                child: ClipOval(
-                    child: Container(
-                  color: Color.fromARGB(206, 94, 94, 94),
-                ))),
+          if (piece != null)
+            Piece(
+              piece: piece!,
+              theme: pieceTheme,
+              rotated: rotatePieces,
+            ),
+          if (piece == null)
+            Container(
+              width: 16,
+              height: 16,
+              decoration: const BoxDecoration(
+                color: Color(0xAA4A4A4A),
+                shape: BoxShape.circle,
+              ),
+            )
+          else
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xAA4A4A4A),
+                  width: 4,
+                ),
+              ),
+            ),
         ],
       );
-      tileColor = isWhite ? Colors.white70 : Colors.grey.shade600;
-    } else {
-      tileColor = isWhite ? Colors.white70 : Colors.grey.shade600;
     }
-
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        color: tileColor,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        color: checkColor,
         child: content,
       ),
     );

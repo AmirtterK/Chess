@@ -1,4 +1,4 @@
-import 'package:chess_game/Components/piece.dart';
+import 'package:chess_ritter/components/piece.dart';
 import 'package:flutter/material.dart';
 
 String pieceTheme = "neon";

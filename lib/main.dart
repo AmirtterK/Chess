@@ -1,17 +1,18 @@
-import 'package:chess_game/Pages/Settings.dart';
-import 'package:chess_game/Pages/Start.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'Pages/Gameboard.dart';
+import 'package:chess_ritter/Pages/Gameboard.dart';
+import 'package:chess_ritter/Pages/Settings.dart';
+import 'package:chess_ritter/Pages/Start.dart';
+import 'package:chess_ritter/state/chess_app_state.dart';
+import 'package:chess_ritter/services/feedback_service.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.manual,
-    overlays: [SystemUiOverlay.top],
-  );
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  await ChessAppState.instance.initialize();
+  await FeedbackService.instance.initialize();
   runApp(const MyApp());
 }
 
@@ -22,9 +23,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp.router(
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
+      title: 'Chess Ritter',
       theme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,
+        fontFamily: 'queen',
+        scaffoldBackgroundColor: const Color(0xFF08080A),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFDC3FDF),
+          brightness: Brightness.dark,
+        ),
       ),
     );
   }

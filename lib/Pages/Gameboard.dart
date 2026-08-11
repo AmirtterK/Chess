@@ -104,10 +104,9 @@ class _GameBoardState extends State<GameBoard> {
                                               final isValidMove = appState.validMoves.any(
                                                 (move) => move[0] == boardRow && move[1] == boardCol,
                                               );
-                                              final isCheck = appState.whiteKingChecked &&
-                                                  piece != null &&
+                                              final isCheck = piece != null &&
                                                   piece.type == ChessPieceType.king &&
-                                                  piece.isWhite == appState.whiteTurn;
+                                                  appState.isKingInCheck(piece.isWhite);
 
                                               return Tile(
                                                 isDark: isDark,

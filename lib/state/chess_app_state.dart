@@ -206,6 +206,11 @@ class ChessAppState extends ChangeNotifier {
   bool _loading = true;
   bool _aiBusy = false;
   int _aiRequestId = 0;
+  final Stopwatch _aiSearchClock = Stopwatch();
+  int _aiSearchNodes = 0;
+  bool _aiSearchAborted = false;
+  static const int _maxAiSearchNodes = 12000;
+  static const Duration _maxAiSearchTime = Duration(milliseconds: 300);
   bool _hasValidSavedGame = false;
   Timer? _timer;
 
@@ -668,9 +673,11 @@ class ChessAppState extends ChangeNotifier {
     final rewindBy = gameMode == GameMode.vsAi ? math.min(2, _historyIndex) : 1;
     _historyIndex -= rewindBy;
     _applySnapshot(_history[_historyIndex]);
+    _restartTimer();
     _hapticLight();
     notifyListeners();
     saveGame();
+    _scheduleAiMove();
   }
 
   void redoMove() {
@@ -681,9 +688,11 @@ class ChessAppState extends ChangeNotifier {
     final advanceBy = gameMode == GameMode.vsAi ? math.min(2, available) : 1;
     _historyIndex += advanceBy;
     _applySnapshot(_history[_historyIndex]);
+    _restartTimer();
     _hapticLight();
     notifyListeners();
     saveGame();
+    _scheduleAiMove();
   }
 
   void selectHistoryIndex(int index) {
@@ -697,6 +706,7 @@ class ChessAppState extends ChangeNotifier {
     historyViewIndex = null;
     _restoreLivePosition();
     notifyListeners();
+    _scheduleAiMove();
   }
 
   void _restoreLivePosition() {
@@ -714,7 +724,8 @@ class ChessAppState extends ChangeNotifier {
     moves.add(move);
     if (promotionPending) {
       notifyListeners();
-      saveGame();
+      // Do not persist a half-finished promotion. The last completed position
+      // remains the recoverable save until the player chooses a piece.
       return;
     }
     _finishMove(move);
@@ -958,6 +969,10 @@ class ChessAppState extends ChangeNotifier {
     if (piece == null) return [];
     final moves = <List<int>>[];
     for (final candidate in primaryMovesForPiece(row, col, piece)) {
+      // Kings are never captured in chess; checkmate ends the game before a
+      // move could reach the opposing king's square.
+      final target = board[candidate[0]][candidate[1]];
+      if (target?.type == ChessPieceType.king) continue;
       if (_isMoveSafe(row, col, candidate[0], candidate[1], piece)) {
         moves.add(candidate);
       }
@@ -977,15 +992,32 @@ class ChessAppState extends ChangeNotifier {
             moves.add([r, c]);
           }
         }
-        if (piece.movesNum == 0 && !_isSquareOccupied(row, col + 1) && !_isSquareOccupied(row, col + 2)) {
+        if (piece.movesNum == 0 &&
+            !isSquareAttacked(row, col, !piece.isWhite) &&
+            !_isSquareOccupied(row, col + 1) &&
+            !_isSquareOccupied(row, col + 2)) {
           final rook = _pieceAt(row, col + 3);
-          if (rook != null && rook.type == ChessPieceType.rook && rook.movesNum == 0 && !_isSquareAttackedForCastling(row, col, col + 1, piece.isWhite) && !_isSquareAttackedForCastling(row, col, col + 2, piece.isWhite)) {
+          if (rook != null &&
+              rook.isWhite == piece.isWhite &&
+              rook.type == ChessPieceType.rook &&
+              rook.movesNum == 0 &&
+              !_isSquareAttackedForCastling(row, col, col + 1, piece.isWhite) &&
+              !_isSquareAttackedForCastling(row, col, col + 2, piece.isWhite)) {
             moves.add([row, col + 2]);
           }
         }
-        if (piece.movesNum == 0 && !_isSquareOccupied(row, col - 1) && !_isSquareOccupied(row, col - 2) && !_isSquareOccupied(row, col - 3)) {
+        if (piece.movesNum == 0 &&
+            !isSquareAttacked(row, col, !piece.isWhite) &&
+            !_isSquareOccupied(row, col - 1) &&
+            !_isSquareOccupied(row, col - 2) &&
+            !_isSquareOccupied(row, col - 3)) {
           final rook = _pieceAt(row, col - 4);
-          if (rook != null && rook.type == ChessPieceType.rook && rook.movesNum == 0 && !_isSquareAttackedForCastling(row, col, col - 1, piece.isWhite) && !_isSquareAttackedForCastling(row, col, col - 2, piece.isWhite)) {
+          if (rook != null &&
+              rook.isWhite == piece.isWhite &&
+              rook.type == ChessPieceType.rook &&
+              rook.movesNum == 0 &&
+              !_isSquareAttackedForCastling(row, col, col - 1, piece.isWhite) &&
+              !_isSquareAttackedForCastling(row, col, col - 2, piece.isWhite)) {
             moves.add([row, col - 2]);
           }
         }
@@ -1028,9 +1060,15 @@ class ChessAppState extends ChangeNotifier {
         final lastMove = movesHistoryLast;
         if (lastMove != null &&
             lastMove.type == ChessPieceType.pawn &&
+            lastMove.isWhite != piece.isWhite &&
             (lastMove.fromRow - lastMove.toRow).abs() == 2) {
           final targetRow = row + direction;
-          if (targetRow == lastMove.toRow && (lastMove.toCol == col - 1 || lastMove.toCol == col + 1)) {
+          final adjacentPawn = _pieceAt(lastMove.toRow, lastMove.toCol);
+          if (targetRow == lastMove.toRow &&
+              (lastMove.toCol == col - 1 || lastMove.toCol == col + 1) &&
+              adjacentPawn?.type == ChessPieceType.pawn &&
+              adjacentPawn?.isWhite != piece.isWhite &&
+              board[targetRow][lastMove.toCol] == null) {
             moves.add([targetRow, lastMove.toCol]);
           }
         }
@@ -1195,19 +1233,30 @@ class ChessAppState extends ChangeNotifier {
     notifyListeners();
     final requestId = ++_aiRequestId;
     Future.delayed(const Duration(milliseconds: 350), () async {
-      await Future<void>.delayed(Duration.zero);
-      _aiBusy = false;
-      notifyListeners();
       if (requestId != _aiRequestId) return;
-      if (!aiTurn || gameOver || promotionPending || usingHistory) return;
-      final move = _pickAiMove();
-      if (move != null) {
+      try {
+        await Future<void>.delayed(Duration.zero);
+        if (!aiTurn || gameOver || promotionPending || usingHistory) return;
+        final move = _pickAiMove();
+        if (requestId != _aiRequestId) return;
+        if (move == null) {
+          final inCheck = isKingInCheck(whiteTurn);
+          if (!hasAnyLegalMove(whiteTurn)) {
+            _endGame(stalemate: !inCheck);
+          }
+          return;
+        }
         final piece = board[move.fromRow][move.fromCol];
         if (piece != null) {
           _executeMove(move.fromRow, move.fromCol, move.toRow, move.toCol, piece);
           if (promotionPending && promotionPiece != null) {
             completePromotion(ChessPieceType.queen);
           }
+        }
+      } finally {
+        if (requestId == _aiRequestId) {
+          _aiBusy = false;
+          notifyListeners();
         }
       }
     });
@@ -1216,6 +1265,11 @@ class ChessAppState extends ChangeNotifier {
   MoveCandidate? _pickAiMove() {
     final legal = legalMovesForColor(whiteTurn);
     if (legal.isEmpty) return null;
+    _aiSearchClock
+      ..reset()
+      ..start();
+    _aiSearchNodes = 0;
+    _aiSearchAborted = false;
     // A forced mate always outranks the opening book, material, and position.
     final checkmate = _immediateCheckmateMove(legal);
     if (checkmate != null) return checkmate;
@@ -1224,12 +1278,14 @@ class ChessAppState extends ChangeNotifier {
     final bookMove = aiDifficulty >= 3 ? _openingBookMove(legal) : null;
     if (bookMove != null) return bookMove;
 
-    final depth = const [1, 2, 3, 4, 5][aiDifficulty.clamp(1, 5) - 1];
+    // This search runs on Flutter's UI isolate, so it must have a hard budget.
+    final depth = const [1, 2, 3, 3, 3][aiDifficulty.clamp(1, 5) - 1];
     final aiWhite = !humanPlaysWhite;
     final ordered = [...legal]..sort((a, b) => _moveOrderingScore(b).compareTo(_moveOrderingScore(a)));
     final scored = <MapEntry<MoveCandidate, double>>[];
     var alpha = -double.infinity;
     for (final candidate in ordered) {
+      if (_shouldAbortAiSearch()) break;
       final before = _currentSnapshot();
       final promotionBefore = promotionPending;
       final promotionRowBefore = promotionRow;
@@ -1245,6 +1301,8 @@ class ChessAppState extends ChangeNotifier {
       scored.add(MapEntry(candidate, value));
       alpha = math.max(alpha, value).toDouble();
     }
+    _aiSearchClock.stop();
+    if (scored.isEmpty) return legal.first;
     scored.sort((a, b) => b.value.compareTo(a.value));
     final topCount = aiDifficulty == 1
         ? math.min(4, scored.length).toInt()
@@ -1256,6 +1314,7 @@ class ChessAppState extends ChangeNotifier {
 
   MoveCandidate? _immediateCheckmateMove(List<MoveCandidate> legal) {
     for (final candidate in legal) {
+      if (_shouldAbortAiSearch()) break;
       final before = _currentSnapshot();
       final promotionBefore = promotionPending;
       final promotionRowBefore = promotionRow;
@@ -1309,6 +1368,7 @@ class ChessAppState extends ChangeNotifier {
   }
 
   double _minimax(int depth, double alpha, double beta, bool aiWhite) {
+    if (_shouldAbortAiSearch()) return 0;
     final legal = legalMovesForColor(whiteTurn);
     if (legal.isEmpty) {
       if (isKingInCheck(whiteTurn)) {
@@ -1322,6 +1382,7 @@ class ChessAppState extends ChangeNotifier {
     final maximizing = whiteTurn == aiWhite;
     var best = maximizing ? -double.infinity : double.infinity;
     for (final candidate in ordered) {
+      if (_shouldAbortAiSearch()) break;
       final before = _currentSnapshot();
       final promotionBefore = promotionPending;
       final promotionRowBefore = promotionRow;
@@ -1344,6 +1405,14 @@ class ChessAppState extends ChangeNotifier {
       if (beta <= alpha) break;
     }
     return best;
+  }
+
+  bool _shouldAbortAiSearch() {
+    _aiSearchNodes++;
+    if (_aiSearchNodes > _maxAiSearchNodes || _aiSearchClock.elapsed > _maxAiSearchTime) {
+      _aiSearchAborted = true;
+    }
+    return _aiSearchAborted;
   }
 
   void _applySearchMove(MoveCandidate candidate) {
@@ -1490,6 +1559,8 @@ class ChessAppState extends ChangeNotifier {
     final enemyWhite = whiteTurn;
     final enemyHasMoves = hasAnyLegalMove(enemyWhite);
     final enemyInCheck = isKingInCheck(enemyWhite);
+    // The checked side is the side whose turn starts after this move.
+    whiteKingChecked = enemyInCheck;
     gameOver = enemyInCheck && !enemyHasMoves;
     stalemate = !gameOver && !enemyInCheck && !enemyHasMoves;
     if (gameOver || stalemate) {

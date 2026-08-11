@@ -129,11 +129,11 @@ class Start extends StatelessWidget {
                                         children: [
                                           Text(
                                             'AI ${appState.aiName} · ${appState.aiDifficultyLabel}',
-                                            style: TextStyle(color: theme.accent, fontSize: 18, fontWeight: FontWeight.w700),
+                                            style: TextStyle(color: theme.accent, fontSize: 17, fontWeight: FontWeight.w700),
                                           ),
                                           Text(
                                             ' · ${appState.aiElo} Elo',
-                                            style: TextStyle(color: theme.accent, fontSize: 18, fontWeight: FontWeight.w700),
+                                            style: TextStyle(color: theme.accent, fontSize: 17, fontWeight: FontWeight.w700),
                                           ),
                                         ],
                                       ),
@@ -207,7 +207,7 @@ class _MenuCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(title, style: TextStyle(fontFamily: 'queen', fontSize: 25, color: titleColor)),
+        Text(title, style: TextStyle(fontFamily: 'queen', fontSize: 23, color: titleColor)),
         const SizedBox(height: 5),
         child,
       ],

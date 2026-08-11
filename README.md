@@ -53,11 +53,12 @@ The AI in this project is a built-in Dart engine. It does not rely on Stockfish 
 
 The core AI flow lives in [`lib/state/chess_app_state.dart`](C:/Users/LENOVO/Documents/Coding/Flutter/Chess/lib/state/chess_app_state.dart):
 
-- `_scheduleAiMove()` waits briefly after the human move and then triggers the AI turn.
-- `_pickAiMove()` gathers legal moves and chooses one based on difficulty.
-- `legalMovesForColor()` and `legalMovesForPiece()` generate only legal chess moves.
-- `_scoreCandidate()` applies a cheap heuristic for higher difficulties.
-- `completePromotion()` finalizes pawn promotion after the AI or player reaches the last rank.
+- `_scheduleAiMove()` waits 350 ms after the position changes, then starts the AI turn.
+- `_pickAiMove()` gathers legal moves, checks for immediate checkmate, consults the opening book when enabled, and then searches/evaluates candidates.
+- `legalMovesForColor()` and `legalMovesForPiece()` enforce king safety, check responses, castling, en passant, and promotion moves.
+- `_minimax()` performs a bounded alpha-beta search for the stronger difficulty levels.
+- `completePromotion()` finalizes pawn promotion after the player or AI reaches the last rank.
+- `_aiRequestId` cancels stale delayed AI requests after undo, redo, restart, or history changes.
 
 The AI only runs when:
 
@@ -70,8 +71,10 @@ The AI only runs when:
 ### Move Selection Flow
 
 1. The app builds a list of all legal moves for the AI side.
-2. Very easy difficulty picks a random legal move.
-3. Higher difficulties score each move with a cheap heuristic and choose the best one.
+2. The AI immediately prefers a move that checkmates the opponent.
+3. Difficulties III–V can follow a small opening book during the early game.
+4. The remaining candidates are ordered and evaluated with a shallow minimax search.
+5. Difficulty I chooses randomly from up to four of the best-scored candidates; difficulty II chooses from up to two; difficulties III–V choose the highest-scoring result.
 
 ### Evaluation Heuristic
 
@@ -87,17 +90,20 @@ The AI uses a simple board evaluation:
 It prefers moves that:
 
 - Win material
-- Give check
+- Give check or checkmate
 - Promote a pawn
+- Improve piece position and mobility
 - Avoid leaving its own king in check
 
 ### Search Depth
 
-The current AI is intentionally lightweight and fast:
+The current AI is intentionally lightweight and bounded for mobile devices:
 
-- Lower difficulty levels lean on randomness
-- Higher difficulty levels use a shallow move score
-- The app keeps the logic fast enough for mobile and desktop without spawning a heavy engine process
+- Difficulty I searches one ply.
+- Difficulty II searches two ply.
+- Difficulties III–V search up to three ply.
+- Every search is capped at 12,000 search nodes or 300 ms, whichever comes first.
+- The AI runs inside the app and does not spawn a separate engine process.
 
 ### Strengths And Limits
 
@@ -107,12 +113,13 @@ It understands:
 
 - Legal move generation
 - Check and checkmate safety
-- Basic positional/material value
+- Castling, en passant, and promotion
+- Basic material, mobility, positional, and king-safety evaluation
+- Undo/redo and history cancellation while an AI request is pending
 
-It does not yet do:
+It does not provide:
 
-- Deep multi-ply search
-- Opening books
+- A large or comprehensive opening book
 - Endgame tablebases
 - Stockfish-level evaluation
 
